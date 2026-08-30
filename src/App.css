@@ -1,0 +1,51 @@
+header {
+  text-align: center;
+  padding: 30px;
+  background-color: #8b0000;
+  color: white;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 36px;
+}
+
+header p {
+  margin-top: 10px;
+}
+
+main {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+main > h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.menu {
+  display: grid;
+  gap: 20px;
+}
+
+.dish {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.dish h2 {
+  margin: 0;
+}
+
+.dish p {
+  font-weight: bold;
+  font-size: 18px;
+}
