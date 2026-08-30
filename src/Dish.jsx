@@ -1,26 +1,46 @@
+import { useState } from "react";
 
-import PropTypes from "prop-types";
+function Dish({ name, price, category, spicy, onAdd }) {
+  const [count, setCount] = useState(0);
 
-function Dish({ name, price, spicy, currency = "ETB" }) {
+  const handleAdd = () => {
+    setCount((currentCount) => currentCount + 1);
+    onAdd(price);
+  };
+
   return (
-    <article className="dish-card">
-      <h3>{name}</h3>
+    <article className="dish">
+      <div className="dish-content">
+        <div className="dish-category">
+          {category}
+        </div>
 
-      {spicy && <span className="spicy-badge">🌶️ Spicy</span>}
+        <h3>{name}</h3>
 
-      <p>
-        {price} {currency}
-      </p>
+        <p className="dish-price">
+          {price} ETB
+        </p>
+
+        {spicy && (
+          <p className="spicy">
+            🌶️ Spicy
+          </p>
+        )}
+
+        <p className="count">
+          Added: {count}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        className="add-button"
+        onClick={handleAdd}
+      >
+        + Add
+      </button>
     </article>
   );
 }
 
-Dish.propTypes = {
-  name: PropTypes.string.isRequired,
-  price: PropTypes.number.isRequired,
-  spicy: PropTypes.bool,
-  currency: PropTypes.string,
-};
-
 export default Dish;
-
