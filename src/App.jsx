@@ -1,51 +1,100 @@
-import './App.css'
 
-function Header() {
-  return (
-    <header>
-      <h1>🍴 Addis Eats</h1>
-      <p>Delicious Ethiopian Food</p>
-    </header>
-  )
-}
+import { useState } from "react";
+import Dish from "./Dish";
+import Card from "./Card";
+import "./App.css";
 
-function Dish({ name, price }) {
-  return (
-    <div className="dish">
-      <h2>{name}</h2>
-      <p>{price} ETB</p>
-    </div>
-  )
-}
+const menu = [
+  {
+    id: 1,
+    name: "Doro Wot",
+    price: 250,
+    category: "Main",
+    spicy: true,
+  },
+  {
+    id: 2,
+    name: "Tibs",
+    price: 300,
+    category: "Main",
+    spicy: true,
+  },
+  {
+    id: 3,
+    name: "Shiro",
+    price: 180,
+    category: "Main",
+    spicy: false,
+  },
+  {
+    id: 4,
+    name: "Sambusa",
+    price: 100,
+    category: "Snack",
+    spicy: false,
+  },
+  {
+    id: 5,
+    name: "Firfir",
+    price: 200,
+    category: "Breakfast",
+    spicy: true,
+  },
+];
 
 function App() {
-  const dishes = [
-    { id: 1, name: 'Doro Wot', price: 250 },
-    { id: 2, name: 'Kitfo', price: 300 },
-    { id: 3, name: 'Tibs', price: 280 },
-    { id: 4, name: 'Shiro Wot', price: 150 },
-    { id: 5, name: 'Beyaynetu', price: 200 },
-  ]
+  const [category, setCategory] = useState("All");
+
+  const filteredMenu =
+    category === "All"
+      ? menu
+      : menu.filter((dish) => dish.category === category);
 
   return (
-    <>
-      <Header />
+    <div className="app">
+      <header>
+        <h1>🍽️ Addis Eats</h1>
+        <p>Delicious Ethiopian food</p>
+      </header>
 
       <main>
-        <h2>Our Menu</h2>
+        <div className="filter">
+          <label htmlFor="category">Filter by category: </label>
 
-        <div className="menu">
-          {dishes.map((dish) => (
-            <Dish
-              key={dish.id}
-              name={dish.name}
-              price={dish.price}
-            />
-          ))}
+          <select
+            id="category"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+          >
+            <option value="All">All</option>
+            <option value="Main">Main</option>
+            <option value="Snack">Snack</option>
+            <option value="Breakfast">Breakfast</option>
+            <option value="Dessert">Dessert</option>
+          </select>
         </div>
+
+        {filteredMenu.length === 0 ? (
+          <p className="empty-state">
+            No dishes found in this category.
+          </p>
+        ) : (
+          <section className="menu">
+            {filteredMenu.map((dish) => (
+              <Card key={dish.id}>
+                <Dish
+                  name={dish.name}
+                  price={dish.price}
+                  spicy={dish.spicy}
+                />
+              </Card>
+            ))}
+          </section>
+        )}
       </main>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
+
