@@ -1,67 +1,92 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Dish from "./Dish";
 import "./App.css";
-
-const menu = [
-  {
-    id: 1,
-    name: "Doro Wot",
-    price: 250,
-    category: "Main",
-    spicy: true,
-  },
-  {
-    id: 2,
-    name: "Tibs",
-    price: 300,
-    category: "Main",
-    spicy: true,
-  },
-  {
-    id: 3,
-    name: "Shiro",
-    price: 180,
-    category: "Main",
-    spicy: false,
-  },
-  {
-    id: 4,
-    name: "Sambusa",
-    price: 100,
-    category: "Snack",
-    spicy: false,
-  },
-  {
-    id: 5,
-    name: "Firfir",
-    price: 200,
-    category: "Breakfast",
-    spicy: true,
-  },
-];
 
 const categories = ["All", "Main", "Snack", "Breakfast", "Dessert"];
 
 function App() {
+  // Menu state
+  const [menu, setMenu] = useState([]);
+
+  // Category state
   const [category, setCategory] = useState("All");
 
+  // Loading and error states
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // Search input reference
+  const searchInputRef = useRef(null);
+
+  // Order total
   const [total, setTotal] = useState(0);
 
+  // Delivery form state
   const [delivery, setDelivery] = useState({
     name: "",
     phone: "",
     area: "",
   });
 
-  const filteredMenu =
-    category === "All"
-      ? menu
-      : menu.filter((dish) => dish.category === category);
+  // Fetch menu whenever category changes
+  useEffect(() => {
+    const controller = new AbortController();
 
+    async function fetchMenu() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await fetch("/menu.json", {
+          signal: controller.signal,
+        });
+
+        // Check if request was successful
+        if (!response.ok) {
+          throw new Error("Failed to load menu.");
+        }
+
+        // Convert response to JavaScript data
+        const data = await response.json();
+
+        // Filter menu based on category
+        const filteredMenu =
+          category === "All"
+            ? data
+            : data.filter((dish) => dish.category === category);
+
+        setMenu(filteredMenu);
+      } catch (err) {
+        // Ignore errors caused by cancelling the request
+        if (err.name !== "AbortError") {
+          setError(err.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchMenu();
+
+    // Cleanup: cancel previous request
+    return () => {
+      controller.abort();
+    };
+  }, [category]);
+
+  // Focus search input after loading finishes
+  useEffect(() => {
+    if (!loading && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [loading]);
+
+  // Add dish price to total
   const handleAdd = (price) => {
     setTotal((currentTotal) => currentTotal + price);
   };
 
+  // Handle delivery form changes
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -71,6 +96,7 @@ function App() {
     }));
   };
 
+  // Phone number validation
   const phoneRegex = /^(09\d{8}|\+2519\d{8})$/;
 
   const isPhoneValid = phoneRegex.test(delivery.phone);
@@ -80,6 +106,7 @@ function App() {
     isPhoneValid &&
     delivery.area.trim() !== "";
 
+  // Submit order
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -96,8 +123,27 @@ function App() {
     );
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="app">
+        <h2>Loading menu...</h2>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="app">
+        <h2>Error: {error}</h2>
+      </div>
+    );
+  }
+
   return (
     <div className="app">
+      {/* Header */}
       <header className="hero">
         <div className="hero-content">
           <h1>🍽️ Addis Eats</h1>
@@ -106,6 +152,16 @@ function App() {
       </header>
 
       <main>
+        {/* Search */}
+        <section className="search-section">
+          <input
+            ref={searchInputRef}
+            type="text"
+            placeholder="Search dishes..."
+          />
+        </section>
+
+        {/* Category section */}
         <section className="category-section">
           <h2>Choose a Category</h2>
 
@@ -123,13 +179,15 @@ function App() {
           </div>
         </section>
 
+        {/* Order total */}
         <section className="total-section">
           <p>Your Order Total</p>
           <h2>{total} ETB</h2>
         </section>
 
+        {/* Menu */}
         <section className="menu">
-          {filteredMenu.map((dish) => (
+          {menu.map((dish) => (
             <Dish
               key={dish.id}
               name={dish.name}
@@ -141,12 +199,14 @@ function App() {
           ))}
         </section>
 
-        {filteredMenu.length === 0 && (
+        {/* Empty state */}
+        {menu.length === 0 && (
           <p className="empty-state">
             No dishes found in this category.
           </p>
         )}
 
+        {/* Delivery form */}
         <section className="delivery-section">
           <form className="delivery-form" onSubmit={handleSubmit}>
             <h2>📦 Delivery Details</h2>
@@ -155,6 +215,7 @@ function App() {
               Enter your information to receive your order.
             </p>
 
+            {/* Name */}
             <label htmlFor="name">Full Name</label>
 
             <input
@@ -166,6 +227,7 @@ function App() {
               onChange={handleChange}
             />
 
+            {/* Phone */}
             <label htmlFor="phone">
               TeleBirr Phone Number
             </label>
@@ -179,6 +241,7 @@ function App() {
               onChange={handleChange}
             />
 
+            {/* Phone validation message */}
             {delivery.phone !== "" && (
               <p
                 className={
@@ -193,6 +256,7 @@ function App() {
               </p>
             )}
 
+            {/* Delivery area */}
             <label htmlFor="area">Delivery Area</label>
 
             <input
@@ -204,6 +268,7 @@ function App() {
               onChange={handleChange}
             />
 
+            {/* Submit */}
             <button
               type="submit"
               className="order-button"

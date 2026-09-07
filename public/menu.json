@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "name": "Doro Wot",
+    "price": 250,
+    "category": "Main",
+    "spicy": true
+  },
+  {
+    "id": 2,
+    "name": "Tibs",
+    "price": 300,
+    "category": "Main",
+    "spicy": true
+  },
+  {
+    "id": 3,
+    "name": "Shiro",
+    "price": 180,
+    "category": "Main",
+    "spicy": false
+  },
+  {
+    "id": 4,
+    "name": "Sambusa",
+    "price": 100,
+    "category": "Snack",
+    "spicy": false
+  },
+  {
+    "id": 5,
+    "name": "Firfir",
+    "price": 200,
+    "category": "Breakfast",
+    "spicy": true
+  },
+  {
+    "id":6,
+    "name": "Torta",
+    "price":1200,
+    "category":"Dessert",
+    "spicy":false
+  }
+]
