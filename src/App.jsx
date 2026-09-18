@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import Dish from "./Dish";
@@ -22,13 +23,14 @@ function AppContent() {
 
   const searchInputRef = useRef(null);
 
+  // Fetch menu again whenever category changes
   const {
     data: menu,
     loading,
     error,
-  } = useFetch("/menu.json");
+  } = useFetch("/menu.json", [category]);
 
-  // Focus search after menu finishes loading
+  // Focus search input after loading
   useEffect(() => {
     if (!loading && searchInputRef.current) {
       searchInputRef.current.focus();
@@ -55,6 +57,7 @@ function AppContent() {
       );
   }, [menu, category, search]);
 
+  // Loading state
   if (loading) {
     return (
       <div className="app">
@@ -63,6 +66,7 @@ function AppContent() {
     );
   }
 
+  // Error state
   if (error) {
     return (
       <div className="app">

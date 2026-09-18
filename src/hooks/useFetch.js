@@ -1,6 +1,7 @@
+
 import { useEffect, useState } from "react";
 
-function useFetch(url) {
+function useFetch(url, dependencies = []) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -18,7 +19,9 @@ function useFetch(url) {
         });
 
         if (!response.ok) {
-          throw new Error("Failed to fetch data.");
+          throw new Error(
+            `Failed to load menu (${response.status})`
+          );
         }
 
         const result = await response.json();
@@ -29,16 +32,19 @@ function useFetch(url) {
           setError(err.message);
         }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     }
 
     fetchData();
 
+    // Cancel the previous request
     return () => {
       controller.abort();
     };
-  }, [url]);
+  }, [url, ...dependencies]);
 
   return {
     data,
