@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import useCartStore from "../store/cartStore";
 
 const dishes = [
   {
@@ -100,48 +101,20 @@ function DishDetails() {
 
   const [dish, setDish] = useState(null);
 
+  const addItem = useCartStore(
+    (state) => state.addItem
+  );
+
   useEffect(() => {
-    const foundDish = dishes.find((item) => item.id === id);
+    const foundDish = dishes.find(
+      (item) => item.id === id
+    );
 
     setDish(foundDish || null);
   }, [id]);
 
   function addToCart() {
-    const savedCart = localStorage.getItem("addisEatsCart");
-
-    const cart = savedCart ? JSON.parse(savedCart) : [];
-
-    const existingItem = cart.find((item) => item.id === dish.id);
-
-    let updatedCart;
-
-    if (existingItem) {
-      updatedCart = cart.map((item) =>
-        item.id === dish.id
-          ? {
-              ...item,
-              quantity: item.quantity + 1,
-            }
-          : item
-      );
-    } else {
-      updatedCart = [
-        ...cart,
-        {
-          id: dish.id,
-          name: dish.name,
-          price: dish.price,
-          image: dish.image,
-          quantity: 1,
-        },
-      ];
-    }
-
-    localStorage.setItem(
-      "addisEatsCart",
-      JSON.stringify(updatedCart)
-    );
-
+    addItem(dish);
     navigate("/cart");
   }
 
@@ -150,14 +123,18 @@ function DishDetails() {
       <div>
         <h1>Dish Not Found</h1>
 
-        <Link to="/menu">Back to Menu</Link>
+        <Link to="/menu">
+          Back to Menu
+        </Link>
       </div>
     );
   }
 
   return (
     <div>
-      <Link to="/menu">← Back to Menu</Link>
+      <Link to="/menu">
+        ← Back to Menu
+      </Link>
 
       <h1>{dish.name}</h1>
 
@@ -168,11 +145,13 @@ function DishDetails() {
       />
 
       <p>
-        <strong>Category:</strong> {dish.category}
+        <strong>Category:</strong>{" "}
+        {dish.category}
       </p>
 
       <p>
-        <strong>Price:</strong> {dish.price} ETB
+        <strong>Price:</strong>{" "}
+        {dish.price} ETB
       </p>
 
       <p>{dish.description}</p>

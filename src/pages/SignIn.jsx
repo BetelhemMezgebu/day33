@@ -1,81 +1,41 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function SignIn() {
+  const [username, setUsername] = useState("");
+  const { login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
   function handleSubmit(event) {
     event.preventDefault();
 
-    if (!email || !password) {
-      alert("Please enter your email and password.");
+    if (!username.trim()) {
       return;
     }
 
-    localStorage.setItem(
-      "addisEatsUser",
-      JSON.stringify({
-        email,
-      })
-    );
-
-    const destination =
-      location.state?.from || "/checkout";
-
-    navigate(destination);
+    login(username.trim());
+    navigate("/checkout");
   }
 
   return (
     <div>
       <h1>Sign In</h1>
 
-      <p>
-        Please sign in to continue to checkout.
-      </p>
-
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">
-            Email
-          </label>
-
-          <br />
-
+        <label>
+          Name:
           <input
-            id="email"
-            type="email"
-            value={email}
+            type="text"
+            value={username}
             onChange={(event) =>
-              setEmail(event.target.value)
+              setUsername(event.target.value)
             }
-            placeholder="Enter your email"
+            placeholder="Enter your name"
           />
-        </div>
+        </label>
 
         <br />
-
-        <div>
-          <label htmlFor="password">
-            Password
-          </label>
-
-          <br />
-
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(event) =>
-              setPassword(event.target.value)
-            }
-            placeholder="Enter your password"
-          />
-        </div>
-
         <br />
 
         <button type="submit">

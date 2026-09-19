@@ -1,68 +1,50 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import useCartStore from "../store/cartStore";
 
 function Cart() {
-  const [cart, setCart] = useState([]);
-
-  useEffect(() => {
-    const savedCart = localStorage.getItem("addisEatsCart");
-
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
-    }
-  }, []);
-
-  function updateCart(updatedCart) {
-    setCart(updatedCart);
-
-    localStorage.setItem(
-      "addisEatsCart",
-      JSON.stringify(updatedCart)
-    );
-  }
+  const items = useCartStore((state) => state.items);
+  const remove = useCartStore((state) => state.remove);
+  const clear = useCartStore((state) => state.clear);
 
   function increaseQuantity(id) {
-    const updatedCart = cart.map((item) =>
-      item.id === id
-        ? {
-            ...item,
-            quantity: item.quantity + 1,
-          }
-        : item
-    );
+    const item = items.find((item) => item.id === id);
 
-    updateCart(updatedCart);
+    if (item) {
+      useCartStore.getState().addItem(item);
+    }
   }
 
   function decreaseQuantity(id) {
-    const updatedCart = cart
-      .map((item) =>
-        item.id === id
+    const item = items.find((item) => item.id === id);
+
+    if (!item) {
+      return;
+    }
+
+    if (item.quantity === 1) {
+      remove(id);
+      return;
+    }
+
+    useCartStore.setState((state) => ({
+      items: state.items.map((cartItem) =>
+        cartItem.id === id
           ? {
-              ...item,
-              quantity: item.quantity - 1,
+              ...cartItem,
+              quantity: cartItem.quantity - 1,
             }
-          : item
-      )
-      .filter((item) => item.quantity > 0);
-
-    updateCart(updatedCart);
+          : cartItem
+      ),
+    }));
   }
 
-  function removeItem(id) {
-    const updatedCart = cart.filter(
-      (item) => item.id !== id
-    );
-
-    updateCart(updatedCart);
-  }
-
-  const total = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+  const total = items.reduce(
+    (sum, item) =>
+      sum + item.price * item.quantity,
     0
   );
 
-  if (cart.length === 0) {
+  if (items.length === 0) {
     return (
       <div>
         <h1>Your Cart</h1>
@@ -80,7 +62,7 @@ function Cart() {
     <div>
       <h1>🛒 Your Cart</h1>
 
-      {cart.map((item) => (
+      {items.map((item) => (
         <div key={item.id}>
           <img
             src={item.image}
@@ -99,19 +81,23 @@ function Cart() {
           </p>
 
           <button
-            onClick={() => decreaseQuantity(item.id)}
+            onClick={() =>
+              decreaseQuantity(item.id)
+            }
           >
             -
           </button>
 
           <button
-            onClick={() => increaseQuantity(item.id)}
+            onClick={() =>
+              increaseQuantity(item.id)
+            }
           >
             +
           </button>
 
           <button
-            onClick={() => removeItem(item.id)}
+            onClick={() => remove(item.id)}
           >
             Remove
           </button>
@@ -128,6 +114,13 @@ function Cart() {
       <h2>
         Total: {total} ETB
       </h2>
+
+      <button onClick={clear}>
+        Clear Cart
+      </button>
+
+      <br />
+      <br />
 
       <Link to="/menu">
         Continue Shopping
