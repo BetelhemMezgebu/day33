@@ -1,151 +1,66 @@
+import { Routes, Route } from "react-router-dom";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import Layout from "./layouts/Layout";
+import Menu from "./pages/Menu";
+import DishDetails from "./pages/DishDetails";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import SignIn from "./pages/SignIn";
 
-import Dish from "./Dish";
-import Header from "./components/Header";
-import Checkout from "./components/Checkout";
-import CartProvider from "./context/CartContext";
-import useFetch from "./hooks/useFetch";
-
-import "./App.css";
-
-const categories = [
-  "All",
-  "Main",
-  "Snack",
-  "Breakfast",
-  "Dessert",
-];
-
-function AppContent() {
-  const [category, setCategory] = useState("All");
-  const [search, setSearch] = useState("");
-
-  const searchInputRef = useRef(null);
-
-  // Fetch menu again whenever category changes
-  const {
-    data: menu,
-    loading,
-    error,
-  } = useFetch("/menu.json", [category]);
-
-  // Focus search input after loading
-  useEffect(() => {
-    if (!loading && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [loading]);
-
-  // Filter and sort menu
-  const filteredMenu = useMemo(() => {
-    return menu
-      .filter((dish) => {
-        const matchesCategory =
-          category === "All" ||
-          dish.category === category;
-
-        const matchesSearch =
-          dish.name
-            .toLowerCase()
-            .includes(search.toLowerCase());
-
-        return matchesCategory && matchesSearch;
-      })
-      .sort((a, b) =>
-        a.name.localeCompare(b.name)
-      );
-  }, [menu, category, search]);
-
-  // Loading state
-  if (loading) {
-    return (
-      <div className="app">
-        <h2>Loading menu...</h2>
-      </div>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <div className="app">
-        <h2>Error: {error}</h2>
-      </div>
-    );
-  }
-
+function Home() {
   return (
-    <div className="app">
-      <Header />
+    <div>
+      <h1>Welcome to Addis Eats</h1>
 
-      <main>
-        {/* Search */}
-        <section className="search-section">
-          <input
-            ref={searchInputRef}
-            type="text"
-            placeholder="Search dishes..."
-            value={search}
-            onChange={(event) =>
-              setSearch(event.target.value)
-            }
-          />
-        </section>
+      <p>Discover delicious meals in Addis Ababa.</p>
+    </div>
+  );
+}
 
-        {/* Categories */}
-        <section className="category-section">
-          <h2>Choose a Category</h2>
+function NotFound() {
+  return (
+    <div>
+      <h1>404 - Page Not Found</h1>
 
-          <div className="filter">
-            {categories.map((item) => (
-              <button
-                key={item}
-                type="button"
-                className={
-                  category === item ? "active" : ""
-                }
-                onClick={() => setCategory(item)}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* Menu */}
-        <section className="menu">
-          {filteredMenu.map((dish) => (
-            <Dish
-              key={dish.id}
-              id={dish.id}
-              name={dish.name}
-              price={dish.price}
-              category={dish.category}
-              spicy={dish.spicy}
-            />
-          ))}
-        </section>
-
-        {/* No results */}
-        {filteredMenu.length === 0 && (
-          <p className="empty-state">
-            No dishes found.
-          </p>
-        )}
-
-        {/* Cart */}
-        <Checkout />
-      </main>
+      <p>The page you are looking for does not exist.</p>
     </div>
   );
 }
 
 function App() {
   return (
-    <CartProvider>
-      <AppContent />
-    </CartProvider>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+
+        {/* Home */}
+        <Route index element={<Home />} />
+
+        {/* Menu */}
+        <Route path="menu" element={<Menu />} />
+
+        {/* Dish Details */}
+        <Route
+          path="menu/:id"
+          element={<DishDetails />}
+        />
+
+        {/* Cart */}
+        <Route path="cart" element={<Cart />} />
+
+        {/* Sign In */}
+        <Route path="signin" element={<SignIn />} />
+
+        {/* Checkout */}
+        <Route
+          path="checkout"
+          element={<Checkout />}
+        />
+
+        {/* 404 */}
+        <Route path="*" element={<NotFound />} />
+
+      </Route>
+    </Routes>
   );
 }
 
